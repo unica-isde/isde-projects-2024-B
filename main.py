@@ -31,14 +31,14 @@ def info() -> dict[str, list[str]]:
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     """The home page of the service."""
-    return templates.TemplateResponse("home.html", {"request": request})
+    return templates.TemplateResponse("home.html", {"request": request, "active_page": "home"})
 
 
 @app.get("/classifications")
 def create_classify(request: Request):
     return templates.TemplateResponse(
         "classification_select.html",
-        {"request": request, "images": list_images(), "models": Configuration.models},
+        {"request": request, "images": list_images(), "models": Configuration.models, "active_page": "classifications"},
     )
 
 
@@ -55,6 +55,7 @@ async def request_classification(request: Request):
             "request": request,
             "image_id": image_id,
             "classification_scores": json.dumps(classification_scores),
+            "active_page": "classifications",
         },
     )
 
@@ -63,7 +64,7 @@ async def request_classification(request: Request):
 def create_histogram(request: Request):
     return templates.TemplateResponse(
         "histogram_select.html",
-        {"request": request, "images": list_images(), "models": Configuration.models},
+        {"request": request, "images": list_images(), "models": Configuration.models, "active_page": "histogram"},
     )
 
 
@@ -81,5 +82,6 @@ async def request_histogram(request: Request):
             "histogram_blue": json.dumps(hist_b),
             "histogram_green": json.dumps(hist_g),
             "histogram_red": json.dumps(hist_r),
+            "active_page": "histogram",
         },
     )

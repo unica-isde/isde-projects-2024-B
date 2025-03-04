@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .large-front-thumbnail {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .content-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 10px;
+    }
+
+    .image-container {
+        flex: 1;
+        padding-right: 10px;
+    }
+
+    .histograms-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .card {
+        margin-bottom: 10px;
+        padding: 5px; /* Aggiungi un po' di padding ai card */
+    }
+
+    .histogram-canvas {
+        width: 100%;
+        display: block;
+        margin: 0 auto; /* Centra orizzontalmente */
+    }
+
+    .back-button {
+        width: 100%;
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    .btn-primary {
+        background-color: #363a3f;
+        border-color: #000000;
+    }
+
+    .btn-primary:hover {
+        background-color: #676A75;
+        border-color: #000000;
+    }
+</style>
+
+<div class="content-container">
+    <div class="image-container">
+        <div class="card">
+            <img class="large-front-thumbnail" src="{{ 'static/imagenet_subset/'+image_id }}" alt="{{ image_id }}" />
+        </div>
+    </div>
+
+    <div class="histograms-container">
+        <div class="card">
+            <h4>RGB Histogram of the Image</h4>
+            <canvas id="rgbHistogramCanvas" class="histogram-canvas"></canvas>
+            <h2 id="waitText1"></h2>
+        </div>
+        <a class="btn btn-primary back-button" href="/histogram" role="button">Back</a>
+    </div>
+</div>
+
+<script src="{{ 'static/histogram.js' }}" id="drawHistogram" histogram_blue="{{ histogram_blue }}" histogram_green="{{ histogram_green }}" histogram_red="{{ histogram_red }}"></script>
+
+{% endblock %}
