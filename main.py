@@ -7,6 +7,8 @@ from app.config import Configuration
 from app.forms.classification_form import ClassificationForm
 from app.ml.classification_utils import classify_image
 from app.utils import list_images
+from app.forms.histogram_form import HistogramForm
+from app.ml.histogram_utils import histogram
 
 
 app = FastAPI()
@@ -29,14 +31,14 @@ def info() -> dict[str, list[str]]:
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     """The home page of the service."""
-    return templates.TemplateResponse("home.html", {"request": request})
+    return templates.TemplateResponse("home.html", {"request": request, "active_page": "home"})
 
 
 @app.get("/classifications")
 def create_classify(request: Request):
     return templates.TemplateResponse(
         "classification_select.html",
-        {"request": request, "images": list_images(), "models": Configuration.models},
+        {"request": request, "images": list_images(), "models": Configuration.models, "active_page": "classifications"},
     )
 
 
@@ -53,5 +55,33 @@ async def request_classification(request: Request):
             "request": request,
             "image_id": image_id,
             "classification_scores": json.dumps(classification_scores),
+            "active_page": "classifications",
+        },
+    )
+
+
+@app.get("/histogram")
+def create_histogram(request: Request):
+    return templates.TemplateResponse(
+        "histogram_select.html",
+        {"request": request, "images": list_images(), "models": Configuration.models, "active_page": "histogram"},
+    )
+
+
+@app.post("/histogram")
+async def request_histogram(request: Request):
+    form = HistogramForm(request)
+    await form.load_data()
+    image_id = form.image_id
+    hist_b, hist_g, hist_r = histogram(image_id)
+    return templates.TemplateResponse(
+        "histogram_output.html",
+        {
+            "request": request,
+            "image_id": image_id,
+            "histogram_blue": json.dumps(hist_b),
+            "histogram_green": json.dumps(hist_g),
+            "histogram_red": json.dumps(hist_r),
+            "active_page": "histogram",
         },
     )
