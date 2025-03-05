@@ -1,5 +1,6 @@
 import json
-from fastapi import FastAPI, Request
+import os
+from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -11,6 +12,8 @@ from app.forms.histogram_form import HistogramForm
 from app.forms.transformation_form import TransformationForm
 from app.ml.histogram_utils import histogram
 from app.ml.transformation_utils import transform_image
+
+from fastapi.responses import JSONResponse, FileResponse
 
 
 app = FastAPI()
@@ -118,3 +121,19 @@ async def request_transformation(request: Request):
             "active_page": "transformation",
         },
     )
+
+@app.get("/delete_image")
+async def delete_image(image_id: str):
+
+    enhanced_image_path = f"app/static/enhanced_images/enhanced_{image_id}"
+
+    if os.path.exists(enhanced_image_path):
+        try:
+            os.remove(enhanced_image_path)
+            return JSONResponse(content={"message": "Image deleted"})
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Error while deleting the image: {e}"
+            )
+    else:
+        raise HTTPException(status_code=404, detail="Image not found")

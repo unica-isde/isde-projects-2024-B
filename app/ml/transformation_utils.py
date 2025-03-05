@@ -42,11 +42,13 @@ def enhance_image(image, color_factor,brightness_factor, contrast_factor, sharpn
     return image
 
 def transform_image(img_id,color,brightness,contrast,sharpness):
-    """This function enhances and saves the image with the specified factors"""
+    '''This function enhances and saves the image with the specified factors'''
+    enhanced_image_path = f"app/static/enhanced_images"
+    os.makedirs(enhanced_image_path, exist_ok=True)
     img = fetch_image(img_id)
     try:
         new_img = enhance_image(img, color, brightness, contrast, sharpness)
-        new_img.save(os.path.join(conf.image_folder_path, f"enhanced_{img_id}"))
+        new_img.save(os.path.join(enhanced_image_path, f"enhanced_{img_id}"))
     except Exception as e:
         print(f"Error during image enhancement: {e}")
         raise e
