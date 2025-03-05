@@ -1,6 +1,9 @@
-fastapi[all]
-torch
-torchvision
-requests
-Pillow
+fastapi[all]~=0.115.11
+torch~=2.6.0
+torchvision~=0.21.0
+requests~=2.32.3
+Pillow~=11.1.0
 python-multipart
+
+matplotlib~=3.10.1
+opencv-python~=4.11.0.86

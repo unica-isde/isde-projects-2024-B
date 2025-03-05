@@ -14,6 +14,8 @@ from app.ml.histogram_utils import histogram
 from app.ml.transformation_utils import transform_image
 
 from fastapi.responses import JSONResponse, FileResponse
+import matplotlib.pyplot as plt
+import io
 
 
 app = FastAPI()
@@ -137,3 +139,51 @@ async def delete_image(image_id: str):
             )
     else:
         raise HTTPException(status_code=404, detail="Image not found")
+
+@app.get("/download_json")
+async def download_json(classification_scores: str):
+    try:
+
+        scores = json.loads(classification_scores)
+
+        return JSONResponse(
+            content=scores,
+            headers={
+                "Content-Disposition": "attachment; filename=classification_scores.json"
+            },
+        )
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON data")
+
+@app.get("/download_graph")
+async def download_graph(classification_scores: str):
+    try:
+        scores = json.loads(classification_scores)
+
+        labels = [item[0] for item in scores]
+        data = [item[1] for item in scores]
+
+        plt.barh(
+            labels, data, color=["#1a4a04", "#750014", "#795703", "#06216c", "#3f0355"]
+        )
+        plt.grid()
+        plt.title("Classification Scores")
+
+        plt.gca().invert_yaxis()
+
+        img_buf = io.BytesIO()
+        plt.tight_layout()
+        plt.savefig(img_buf, format="png")
+        img_buf.seek(0)
+        plt.close()
+
+        return Response(
+            content=img_buf.getvalue(),
+            media_type="image/png",
+            headers={
+                "Content-Disposition": "attachment; filename=classification_graph.png"
+            },
+        )
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON data")
+
