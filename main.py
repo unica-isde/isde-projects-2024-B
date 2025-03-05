@@ -137,3 +137,18 @@ async def delete_image(image_id: str):
             )
     else:
         raise HTTPException(status_code=404, detail="Image not found")
+
+@app.get("/download_json")
+async def download_json(classification_scores: str):
+    try:
+
+        scores = json.loads(classification_scores)
+
+        return JSONResponse(
+            content=scores,
+            headers={
+                "Content-Disposition": "attachment; filename=classification_scores.json"
+            },
+        )
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON data")
