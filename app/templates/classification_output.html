@@ -10,6 +10,26 @@
             display: block;
             margin: 0 auto;
         }
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin: 20px auto;
+        }
+
+        .btn-container .btn {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: #363a3f; /*  Colore di sfondo */
+            border-color: #000000; /*  Colore del bordo */
+        }
+        .btn-primary:hover {
+            background-color: #676A75; /*  Colore di sfondo al passaggio del mouse */
+            border-color: #000000; /*  Colore del bordo al passaggio del mouse */
+        }
 
     </style>
     <div class="row">
@@ -29,9 +49,11 @@
                         </div>
                     </div>
                 </div>
+                <div class="btn-container">
                 <a class="btn btn-primary" href="/classifications" role="button">Back</a>
+                <a class="btn btn-primary" href="" role="button">Download Graph</a>
+                </div>
         </div>
     </div>
     <script src="{{ "static/graph.js" }}" id="makeGraph" classification_scores="{{classification_scores}}"></script>
 {% endblock %}
-
