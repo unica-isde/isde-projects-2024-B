@@ -85,3 +85,15 @@ async def request_histogram(request: Request):
             "active_page": "histogram",
         },
     )
+
+@app.get("/transformation")
+def create_transformation(request: Request):
+    return templates.TemplateResponse(
+        "transformation_select.html",
+        {
+            "request": request,
+            "images": list_images(),
+            "models": Configuration.models,
+            "active_page": "transformation",
+        },
+    )
