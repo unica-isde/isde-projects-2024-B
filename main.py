@@ -8,7 +8,9 @@ from app.forms.classification_form import ClassificationForm
 from app.ml.classification_utils import classify_image
 from app.utils import list_images
 from app.forms.histogram_form import HistogramForm
+from app.forms.transformation_form import TransformationForm
 from app.ml.histogram_utils import histogram
+from app.ml.transformation_utils import transform_image
 
 
 app = FastAPI()
@@ -94,6 +96,25 @@ def create_transformation(request: Request):
             "request": request,
             "images": list_images(),
             "models": Configuration.models,
+            "active_page": "transformation",
+        },
+    )
+
+@app.post("/transformation")
+async def request_transformation(request: Request):
+    form = TransformationForm(request)
+    await form.load_data()
+    image_id = form.image_id
+    color = form.color
+    brightness = form.brightness
+    contrast = form.contrast
+    sharpness = form.sharpness
+    transform_image(image_id, color, brightness, contrast, sharpness)
+    return templates.TemplateResponse(
+        "transformation_output.html",
+        {
+            "request": request,
+            "image_id": image_id,
             "active_page": "transformation",
         },
     )
