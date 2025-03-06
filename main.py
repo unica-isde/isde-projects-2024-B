@@ -12,7 +12,7 @@ from app.forms.histogram_form import HistogramForm
 from app.forms.transformation_form import TransformationForm
 from app.ml.histogram_utils import histogram
 from app.ml.transformation_utils import transform_image
-
+from app.ml.upload_utils import uploaded_image
 from fastapi.responses import JSONResponse, FileResponse
 import matplotlib.pyplot as plt
 import io
@@ -245,12 +245,16 @@ async def classify_uploaded_image(request: Request):
     with open(file_location, "wb") as output_file:
         output_file.write(file_data)
 
+    # Passa i dati binari al classificatore
+    classification_scores = uploaded_image(model_id=model_id, img_data=file_data)
+
     # Restituisci i risultati
     return templates.TemplateResponse(
         "upload_output.html",
         {
             "request": request,
             "image_id": uploaded_file.filename,
+            "classification_scores": json.dumps(classification_scores),
             "active_page": "upload",
         },
     )
