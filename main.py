@@ -12,7 +12,7 @@ from app.forms.histogram_form import HistogramForm
 from app.forms.transformation_form import TransformationForm
 from app.ml.histogram_utils import histogram
 from app.ml.transformation_utils import transform_image
-
+from app.ml.upload_utils import uploaded_image
 from fastapi.responses import JSONResponse, FileResponse
 import matplotlib.pyplot as plt
 import io
@@ -38,14 +38,21 @@ def info() -> dict[str, list[str]]:
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     """The home page of the service."""
-    return templates.TemplateResponse("home.html", {"request": request, "active_page": "home"})
+    return templates.TemplateResponse(
+        "home.html", {"request": request, "active_page": "home"}
+    )
 
 
 @app.get("/classifications")
 def create_classify(request: Request):
     return templates.TemplateResponse(
         "classification_select.html",
-        {"request": request, "images": list_images(), "models": Configuration.models, "active_page": "classifications"},
+        {
+            "request": request,
+            "images": list_images(),
+            "models": Configuration.models,
+            "active_page": "classifications",
+        },
     )
 
 
@@ -71,7 +78,12 @@ async def request_classification(request: Request):
 def create_histogram(request: Request):
     return templates.TemplateResponse(
         "histogram_select.html",
-        {"request": request, "images": list_images(), "models": Configuration.models, "active_page": "histogram"},
+        {
+            "request": request,
+            "images": list_images(),
+            "models": Configuration.models,
+            "active_page": "histogram",
+        },
     )
 
 
@@ -93,6 +105,7 @@ async def request_histogram(request: Request):
         },
     )
 
+
 @app.get("/transformation")
 def create_transformation(request: Request):
     return templates.TemplateResponse(
@@ -104,6 +117,7 @@ def create_transformation(request: Request):
             "active_page": "transformation",
         },
     )
+
 
 @app.post("/transformation")
 async def request_transformation(request: Request):
@@ -124,6 +138,7 @@ async def request_transformation(request: Request):
         },
     )
 
+
 @app.get("/delete_image")
 async def delete_image(image_id: str):
 
@@ -140,6 +155,7 @@ async def delete_image(image_id: str):
     else:
         raise HTTPException(status_code=404, detail="Image not found")
 
+
 @app.get("/download_json")
 async def download_json(classification_scores: str):
     try:
@@ -154,6 +170,7 @@ async def download_json(classification_scores: str):
         )
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
+
 
 @app.get("/download_graph")
 async def download_graph(classification_scores: str):
@@ -187,3 +204,57 @@ async def download_graph(classification_scores: str):
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
 
+
+@app.get("/upload")
+def create_classify(request: Request):
+    return templates.TemplateResponse(
+        "upload_select.html",
+        {
+            "request": request,
+            "images": list_images(),
+            "models": Configuration.models,
+            "active_page": "upload",
+        },
+    )
+
+
+@app.post("/upload")
+async def classify_uploaded_image(request: Request):
+    form = await request.form()
+    uploaded_file = form.get("file_image")  # File immagine caricato
+    model_id = form.get("model_id")  # Modello selezionato
+
+    if not uploaded_file:
+        return templates.TemplateResponse(
+            "error.html",
+            {
+                "request": request,
+                "error": "No file uploaded",
+                "active_page": "upload",
+            },
+        )
+
+    upload_dir = "app/static/uploads"
+    os.makedirs(upload_dir, exist_ok=True)  # Crea la directory se non esiste
+    file_location = f"{upload_dir}/{uploaded_file.filename}"
+
+    # Leggi i dati binari del file
+    file_data = await uploaded_file.read()
+
+    # Salva il file nella directory di upload
+    with open(file_location, "wb") as output_file:
+        output_file.write(file_data)
+
+    # Passa i dati binari al classificatore
+    classification_scores = uploaded_image(model_id=model_id, img_data=file_data)
+
+    # Restituisci i risultati
+    return templates.TemplateResponse(
+        "upload_output.html",
+        {
+            "request": request,
+            "image_id": uploaded_file.filename,
+            "classification_scores": json.dumps(classification_scores),
+            "active_page": "upload",
+        },
+    )
