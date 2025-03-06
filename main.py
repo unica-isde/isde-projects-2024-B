@@ -244,3 +244,13 @@ async def classify_uploaded_image(request: Request):
     # Salva il file nella directory di upload
     with open(file_location, "wb") as output_file:
         output_file.write(file_data)
+
+    # Restituisci i risultati
+    return templates.TemplateResponse(
+        "upload_output.html",
+        {
+            "request": request,
+            "image_id": uploaded_file.filename,
+            "active_page": "upload",
+        },
+    )
