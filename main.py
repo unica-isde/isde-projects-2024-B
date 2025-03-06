@@ -216,3 +216,31 @@ def create_classify(request: Request):
             "active_page": "upload",
         },
     )
+
+
+@app.post("/upload")
+async def classify_uploaded_image(request: Request):
+    form = await request.form()
+    uploaded_file = form.get("file_image")  # File immagine caricato
+    model_id = form.get("model_id")  # Modello selezionato
+
+    if not uploaded_file:
+        return templates.TemplateResponse(
+            "error.html",
+            {
+                "request": request,
+                "error": "No file uploaded",
+                "active_page": "upload",
+            },
+        )
+
+    upload_dir = "app/static/uploads"
+    os.makedirs(upload_dir, exist_ok=True)  # Crea la directory se non esiste
+    file_location = f"{upload_dir}/{uploaded_file.filename}"
+
+    # Leggi i dati binari del file
+    file_data = await uploaded_file.read()
+
+    # Salva il file nella directory di upload
+    with open(file_location, "wb") as output_file:
+        output_file.write(file_data)
