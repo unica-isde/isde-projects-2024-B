@@ -38,14 +38,21 @@ def info() -> dict[str, list[str]]:
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     """The home page of the service."""
-    return templates.TemplateResponse("home.html", {"request": request, "active_page": "home"})
+    return templates.TemplateResponse(
+        "home.html", {"request": request, "active_page": "home"}
+    )
 
 
 @app.get("/classifications")
 def create_classify(request: Request):
     return templates.TemplateResponse(
         "classification_select.html",
-        {"request": request, "images": list_images(), "models": Configuration.models, "active_page": "classifications"},
+        {
+            "request": request,
+            "images": list_images(),
+            "models": Configuration.models,
+            "active_page": "classifications",
+        },
     )
 
 
@@ -71,7 +78,12 @@ async def request_classification(request: Request):
 def create_histogram(request: Request):
     return templates.TemplateResponse(
         "histogram_select.html",
-        {"request": request, "images": list_images(), "models": Configuration.models, "active_page": "histogram"},
+        {
+            "request": request,
+            "images": list_images(),
+            "models": Configuration.models,
+            "active_page": "histogram",
+        },
     )
 
 
@@ -93,6 +105,7 @@ async def request_histogram(request: Request):
         },
     )
 
+
 @app.get("/transformation")
 def create_transformation(request: Request):
     return templates.TemplateResponse(
@@ -104,6 +117,7 @@ def create_transformation(request: Request):
             "active_page": "transformation",
         },
     )
+
 
 @app.post("/transformation")
 async def request_transformation(request: Request):
@@ -124,6 +138,7 @@ async def request_transformation(request: Request):
         },
     )
 
+
 @app.get("/delete_image")
 async def delete_image(image_id: str):
 
@@ -140,6 +155,7 @@ async def delete_image(image_id: str):
     else:
         raise HTTPException(status_code=404, detail="Image not found")
 
+
 @app.get("/download_json")
 async def download_json(classification_scores: str):
     try:
@@ -154,6 +170,7 @@ async def download_json(classification_scores: str):
         )
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
+
 
 @app.get("/download_graph")
 async def download_graph(classification_scores: str):
@@ -187,3 +204,15 @@ async def download_graph(classification_scores: str):
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
 
+
+@app.get("/upload")
+def create_classify(request: Request):
+    return templates.TemplateResponse(
+        "upload_select.html",
+        {
+            "request": request,
+            "images": list_images(),
+            "models": Configuration.models,
+            "active_page": "upload",
+        },
+    )
