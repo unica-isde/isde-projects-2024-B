@@ -2,6 +2,8 @@
 
 {% block content %}
 
+<h1>Select Model and Upload Image</h1>
+
 <form method="post" enctype="multipart/form-data" novalidate onsubmit="return validateForm();">
     <h4>Model:</h4>
     <p>
@@ -14,7 +16,6 @@
     <h4>Image:</h4>
     <input type="file" name="file_image" id="image_upload" onchange="upload()">
 
-    <!-- Campo nascosto per inviare il valore corretto -->
     <input type="hidden" name="image_id" id="hidden_image_id">
 
     <button type="submit" class="btn btn-dark mb-2">Submit</button>
@@ -22,11 +23,10 @@
 
 <script>
     function upload() {
-        const form = document.querySelector('form');  // Assicurati che il selettore sia valido
+        const form = document.querySelector('form');
         const fileInput = document.getElementById('image_upload');
         const hiddenInput = document.getElementById('hidden_image_id');
         if (fileInput.files.length > 0) {
-            // Se è stato selezionato un file, inviamo il nome del file
             form.action = "/upload";
             hiddenInput.value = fileInput.files[0].name;
         }
@@ -36,7 +36,7 @@
         const fileInput = document.getElementById('image_upload');
         if (fileInput.files.length === 0) {
             alert("Devi caricare un file prima di inviare il form.");
-            return false;  // Impedisce l'invio del form
+            return false;
         }
         return true;
     }

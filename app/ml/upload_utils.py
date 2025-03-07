@@ -1,6 +1,6 @@
 """
-This is a simple classification service. It accepts an url of an
-image and returns the top-5 classification labels and scores.
+This is the upload_utils module, which contains
+utility functions for the upload route.
 """
 
 import importlib
@@ -19,44 +19,39 @@ conf = Configuration()
 
 
 def uploaded_image(model_id, img_data):
-    """Classifica un'immagine caricata come dati binari."""
-    # Carica l'immagine dai dati binari
+    """ This is a function take the uploaded image and classify it using the model"""
+    # Load the image
     img = Image.open(BytesIO(img_data))
 
-    # Carica il modello specificato
-    model = get_model(model_id)  # Usa la funzione esistente per caricare il modello
-    model.eval()  # Modalità di valutazione del modello
+    # Load the model
+    model = get_model(model_id)
+    model.eval()
 
-    # Trasformazioni dell'immagine
+    # Image transformation
     transform = transforms.Compose(
         [
-            transforms.Resize(256),  # Ridimensiona il lato più corto a 256 pixel
-            transforms.CenterCrop(224),  # Ritaglia al centro per ottenere 224x224
-            transforms.ToTensor(),  # Converte l'immagine in un tensore
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
             transforms.Normalize(
                 mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-            ),  # Normalizza i valori dei pixel
+            ),
         ]
     )
 
-    # Prepara l'immagine per il modello
-    img = img.convert("RGB")  # Assicura che l'immagine sia in formato RGB
-    preprocessed = transform(img).unsqueeze(0)  # Aggiunge una dimensione per il batch
+    # Prepare the image for the model
+    img = img.convert("RGB")  # Convert the image in RGB
+    preprocessed = transform(img).unsqueeze(0)
 
-    # Ottieni l'output del modello
     out = model(preprocessed)
     _, indices = torch.sort(out, descending=True)
 
-    # Converte le probabilità in percentuali
     percentage = torch.nn.functional.softmax(out, dim=1)[0] * 100
 
-    # Ottieni le etichette
     labels = get_labels()
 
-    # Prendi le prime 5 predizioni
     output = [[labels[idx], percentage[idx].item()] for idx in indices[0][:5]]
 
-    # Chiudi l'immagine per liberare memoria
     img.close()
 
     return output

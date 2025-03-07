@@ -20,18 +20,17 @@
             border-color: #000000;
         }
 
-        /* Stile per l'immagine a destra */
         .smaller-thumbnail {
-            max-width: 80%; /* Riduce la larghezza dell'immagine */
+            max-width: 80%;
             height: auto;
             display: block;
             margin: 0 auto;
         }
 
-        /* Stile per il contenitore del bottone */
+
         .button-container {
-            width: 80%; /* Larghezza uguale all'immagine */
-            margin: 10px auto 0; /* Margine superiore, centrato */
+            width: 80%;
+            margin: 10px auto 0;
         }
     </style>
 
@@ -60,7 +59,7 @@
         var imageId = "{{ image_id }}";
 
 
-        function confirmBack() {
+        function confirmBack() { /* This function allows you to choose whether to save the enhanced image or not.*/
 
             if (confirm("Do you want to save the enhanced image?")) {
                 window.location.href = "/transformation";
