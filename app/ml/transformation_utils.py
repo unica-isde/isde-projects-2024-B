@@ -11,7 +11,7 @@ import torch
 from PIL import Image
 from torchvision import transforms
 from PIL import ImageEnhance
-
+from datetime import datetime
 from app.config import Configuration
 
 
@@ -43,12 +43,15 @@ def enhance_image(image, color_factor,brightness_factor, contrast_factor, sharpn
 
 def transform_image(img_id,color,brightness,contrast,sharpness):
     '''This function enhances and saves the image with the specified factors'''
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     enhanced_image_path = f"app/static/enhanced_images"
     os.makedirs(enhanced_image_path, exist_ok=True)
     img = fetch_image(img_id)
     try:
         new_img = enhance_image(img, color, brightness, contrast, sharpness)
-        new_img.save(os.path.join(enhanced_image_path, f"enhanced_{img_id}"))
+        image_enhanced_id=f"{img_id}_{timestamp}.jpg"
+        new_img.save(os.path.join(enhanced_image_path, image_enhanced_id))
+        return image_enhanced_id
     except Exception as e:
         print(f"Error during image enhancement: {e}")
         raise e

@@ -1,9 +1,11 @@
 import json
 import os
-from fastapi import FastAPI, Request, Response, HTTPException
+from fastapi import FastAPI, Request, Response, HTTPException, BackgroundTasks
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+
+
 from app.config import Configuration
 from app.forms.classification_form import ClassificationForm
 from app.ml.classification_utils import classify_image
@@ -16,6 +18,7 @@ from app.ml.upload_utils import uploaded_image
 from fastapi.responses import JSONResponse, FileResponse
 import matplotlib.pyplot as plt
 import io
+import asyncio
 
 
 app = FastAPI()
@@ -118,9 +121,8 @@ def create_transformation(request: Request):
         },
     )
 
-
 @app.post("/transformation")
-async def request_transformation(request: Request):
+async def request_transformation(request: Request, background_tasks: BackgroundTasks):
     form = TransformationForm(request)
     await form.load_data()
     image_id = form.image_id
@@ -128,33 +130,21 @@ async def request_transformation(request: Request):
     brightness = form.brightness
     contrast = form.contrast
     sharpness = form.sharpness
-    transform_image(image_id, color, brightness, contrast, sharpness)
+    image_enhanced_id=transform_image(image_id, color, brightness, contrast, sharpness)
+
+    # Delete the file after 30 seconds
+    image_enhanced_path=f"app/static/enhanced_images/{image_enhanced_id}"
+    background_tasks.add_task(delete_file_after_delay, image_enhanced_path)
+
     return templates.TemplateResponse(
         "transformation_output.html",
         {
             "request": request,
             "image_id": image_id,
+            "image_enhanced_id": image_enhanced_id,
             "active_page": "transformation",
         },
     )
-
-
-@app.get("/delete_image")
-async def delete_image(image_id: str):
-
-    enhanced_image_path = f"app/static/enhanced_images/enhanced_{image_id}"
-
-    if os.path.exists(enhanced_image_path):
-        try:
-            os.remove(enhanced_image_path)
-            return JSONResponse(content={"message": "Image deleted"})
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error while deleting the image: {e}"
-            )
-    else:
-        raise HTTPException(status_code=404, detail="Image not found")
-
 
 @app.get("/download_json")
 async def download_json(classification_scores: str):
@@ -170,7 +160,6 @@ async def download_json(classification_scores: str):
         )
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
-
 
 @app.get("/download_graph")
 async def download_graph(classification_scores: str):
@@ -204,7 +193,6 @@ async def download_graph(classification_scores: str):
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
 
-
 @app.get("/upload")
 def create_classify(request: Request):
     return templates.TemplateResponse(
@@ -219,10 +207,10 @@ def create_classify(request: Request):
 
 
 @app.post("/upload")
-async def classify_uploaded_image(request: Request):
+async def classify_uploaded_image(request: Request, background_tasks: BackgroundTasks):
     form = await request.form()
-    uploaded_file = form.get("file_image")  # File immagine caricato
-    model_id = form.get("model_id")  # Modello selezionato
+    uploaded_file = form.get("file_image")
+    model_id = form.get("model_id")
 
     if not uploaded_file:
         return templates.TemplateResponse(
@@ -238,17 +226,16 @@ async def classify_uploaded_image(request: Request):
     os.makedirs(upload_dir, exist_ok=True)  # Crea la directory se non esiste
     file_location = f"{upload_dir}/{uploaded_file.filename}"
 
-    # Leggi i dati binari del file
     file_data = await uploaded_file.read()
 
-    # Salva il file nella directory di upload
     with open(file_location, "wb") as output_file:
         output_file.write(file_data)
 
-    # Passa i dati binari al classificatore
     classification_scores = uploaded_image(model_id=model_id, img_data=file_data)
 
-    # Restituisci i risultati
+    # Delete the file after 30 seconds
+    background_tasks.add_task(delete_file_after_delay, file_location)
+
     return templates.TemplateResponse(
         "upload_output.html",
         {
@@ -258,3 +245,10 @@ async def classify_uploaded_image(request: Request):
             "active_page": "upload",
         },
     )
+
+
+async def delete_file_after_delay(filepath: str, delay: int = 30):
+    await asyncio.sleep(delay)
+    if os.path.exists(filepath):
+        os.remove(filepath)
+

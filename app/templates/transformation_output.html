@@ -45,42 +45,15 @@
         <div class="col">
             <div class="card">
                 <img class="smaller-thumbnail"
-                     src="{{ 'static/enhanced_images/enhanced_'+image_id }}"
+                     src="{{ 'static/enhanced_images/'+image_enhanced_id }}"
                      alt="{{ image_id }}"/>
                 <div class="button-container">
-                    <a class="btn btn-primary btn-block" role="button" onclick="confirmBack()">Back</a>
+                    <a class="btn btn-primary btn-block" role="button" href="/transformation">Back</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-
-        var imageId = "{{ image_id }}";
-
-
-        function confirmBack() { /* This function allows you to choose whether to save the enhanced image or not.*/
-
-            if (confirm("Do you want to save the enhanced image?")) {
-                window.location.href = "/transformation";
-            } else {
-
-                fetch("/delete_image?image_id=" + encodeURIComponent(imageId))
-                    .then(response => {
-                        if (response.ok) {
-                            alert("The image has not been saved");
-                            window.location.href = "/transformation";
-                        } else {
-                            alert("Error while deleting the image.");
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Error:", error);
-                        alert("Error while deleting the image.");
-                    });
-            }
-        }
-    </script>
 
 {% endblock %}
 
