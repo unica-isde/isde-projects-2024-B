@@ -4,7 +4,7 @@ from fastapi import FastAPI, Request, Response, HTTPException, BackgroundTasks
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-
+from datetime import datetime
 
 from app.config import Configuration
 from app.forms.classification_form import ClassificationForm
@@ -212,6 +212,10 @@ async def classify_uploaded_image(request: Request, background_tasks: Background
     uploaded_file = form.get("file_image")
     model_id = form.get("model_id")
 
+    #Add the timestamp to the filename
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    uploaded_file.filename = f"{uploaded_file.filename}_{timestamp}"
+
     if not uploaded_file:
         return templates.TemplateResponse(
             "error.html",
@@ -223,7 +227,7 @@ async def classify_uploaded_image(request: Request, background_tasks: Background
         )
 
     upload_dir = "app/static/uploads"
-    os.makedirs(upload_dir, exist_ok=True)  # Crea la directory se non esiste
+    os.makedirs(upload_dir, exist_ok=True)
     file_location = f"{upload_dir}/{uploaded_file.filename}"
 
     file_data = await uploaded_file.read()
