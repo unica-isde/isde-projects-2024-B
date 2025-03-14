@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Select Model and Upload Image</h1>
+
+<form method="post" enctype="multipart/form-data" novalidate onsubmit="return validateForm();">
+    <h4>Model:</h4>
+    <p>
+        <select name="model_id">
+            {% for model in models %}
+              <option value="{{ model }}" SELECTED>{{ model }}</option>
+            {% endfor %}
+        </select>
+    </p>
+    <h4>Image:</h4>
+
+    <!-- Added the accept "image/*" -->
+    <input type="file" name="file_image" id="image_upload" accept="image/*" onchange="upload()">
+
+    <input type="hidden" name="image_id" id="hidden_image_id">
+
+    <button type="submit" class="btn btn-dark mb-2">Submit</button>
+</form>
+
+<script>
+    function upload() {
+        const form = document.querySelector('form');
+        const fileInput = document.getElementById('image_upload');
+        const hiddenInput = document.getElementById('hidden_image_id');
+        const file = fileInput.files[0];
+
+        if (file) {
+            const validImageTypes = ["image/jpeg", "image/png"];
+
+            if (!validImageTypes.includes(file.type)) {
+                alert("Only image files are allowed.");
+                fileInput.value = "";  // Reset the file input
+                hiddenInput.value = "";
+                return;
+            }
+
+            form.action = "/upload";
+            hiddenInput.value = file.name;
+        }
+    }
+
+    function validateForm() {
+        const fileInput = document.getElementById('image_upload');
+        if (fileInput.files.length === 0) {
+            alert("You must select an image to upload.");
+            return false;
+        }
+        return true;
+    }
+</script>
+
+
+{% endblock %}

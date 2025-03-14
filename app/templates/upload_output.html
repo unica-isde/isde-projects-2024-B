@@ -23,12 +23,12 @@
         }
 
         .btn-primary {
-            background-color: #363a3f; /*  Background color */
-            border-color: #000000; /*  Border color */
+            background-color: #363a3f;
+            border-color: #000000;
         }
         .btn-primary:hover {
-            background-color: #676A75; /*  Background color when the user interact */
-            border-color: #000000; /*  Border color when the user interact */
+            background-color: #676A75;
+            border-color: #000000;
         }
 
     </style>
@@ -36,7 +36,7 @@
         <div class="col">
             <div class="card">
                 <img class="large-front-thumbnail"
-                     src="{{ 'static/imagenet_subset/'+image_id }} "
+                     src="{{ 'static/uploads/'+image_id }} "
                      alt={{ image_id }}/>
             </div>
         </div>
@@ -50,7 +50,7 @@
                     </div>
                 </div>
                 <div class="btn-container">
-                <a class="btn btn-primary" href="/classifications" role="button">Back</a>
+                <a class="btn btn-primary" href="/upload" role="button">Back</a>
                 <a class="btn btn-primary" href="/download_json?classification_scores={{ classification_scores }}" role="button">Download JSON</a>
                 <a class="btn btn-primary" href="/download_graph?classification_scores={{ classification_scores }}" role="button">Download Graph</a>
                 </div>

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <style>
+        .large-front-thumbnail {
+            position: relative;
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .btn-primary {
+            background-color: #363a3f;
+            border-color: #000000;
+        }
+        .btn-primary:hover {
+            background-color: #676A75;
+            border-color: #000000;
+        }
+
+        .smaller-thumbnail {
+            max-width: 80%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+
+        .button-container {
+            width: 80%;
+            margin: 10px auto 0;
+        }
+    </style>
+
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <img class="large-front-thumbnail"
+                     src="{{ 'static/imagenet_subset/'+image_id }}"
+                     alt="{{ image_id }}"/>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <img class="smaller-thumbnail"
+                     src="{{ 'static/enhanced_images/'+image_enhanced_id }}"
+                     alt="{{ image_id }}"/>
+                <div class="button-container">
+                    <a class="btn btn-primary btn-block" role="button" href="/transformation">Back</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
